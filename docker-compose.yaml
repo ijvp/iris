@@ -1,0 +1,52 @@
+services:
+  redis-sessions:
+    image: redis:latest
+    container_name: redis-sessions
+    ports:
+      - "6379:6379"
+
+  main-db:
+    image: postgres:latest
+    container_name: main-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: iris
+    ports:
+      - "54320:5432"
+    volumes:
+      - ./db/init.sql/:/docker-entrypoint-initdb.d/init.sql
+
+  py-api:
+    container_name: py-api
+    build:
+      context: ./py-api
+    ports:
+      - "8081:8081"
+    depends_on:
+      - main-db
+
+  main-api:
+    container_name: main-api
+    build:
+      context: ./js-api
+    env_file:
+      - ./js-api/.env.development
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "8080:8080"
+    depends_on:
+      - main-db
+      - redis-sessions
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok-tunnel
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command: "http --url oriented-better-pigeon.ngrok-free.app main-api:8080"
+    ports:
+      - 4040:4040
+    depends_on:
+      - main-api

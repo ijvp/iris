@@ -1,0 +1,9 @@
+[submodule "js-api"]
+	path = js-api
+	url = https://github.com/ijvp/js-api.git
+[submodule "py-api"]
+	path = py-api
+	url = https://github.com/ijvp/py-api.git
+[submodule "client"]
+	path = client
+	url = https://github.com/ijvp/client.git
